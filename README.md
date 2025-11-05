@@ -35,11 +35,11 @@ The goal of this project is to automate end-to-end deployment of a secure, scala
                         │
         ┌───────────────┼────────────────┐
         │                                │
-┌───────▼─────────┐             ┌────────▼────────┐
-│ Web Server (EC2)│             │ DB Server (EC2) │
-│ NGINX Configured│             │ MySQL Configured│
-│ via Ansible     │             │ via Ansible     │
-└─────────────────┘             └─────────────────┘
+    ┌───────▼─────────┐             ┌────────▼────────┐
+    │ Web Server (EC2)│             │ DB Server (EC2) │
+    │ NGINX Configured│             │ MySQL Configured│
+    │ via Ansible     │             │ via Ansible     │
+    └─────────────────┘             └─────────────────┘
 
 
 
