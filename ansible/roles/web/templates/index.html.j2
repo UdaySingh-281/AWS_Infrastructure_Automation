@@ -1,0 +1,11 @@
+<html>
+  <head>
+    <title>Welcome to {{ ansible_hostname }}</title>
+  </head>
+  <body>
+    <h1>Deployed via Ansible 🚀</h1>
+    <p>Server Hostname: {{ ansible_hostname }}</p>
+    <p>Environment: {{ env | default('Development') }}</p>
+    <p>Last updated: {{ ansible_date_time.date }}</p>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+# Ignore Terraform local files
+**/.terraform/*
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Ignore any sensitive variable overrides
+*.auto.tfvars
+# Keep your envs/dev/terraform.tfvars since you said it's needed
+!terraform/envs/dev/terraform.tfvars
+
+# Ignore backup files
+*.backup
+
+# Ignore Python caches
+__pycache__/
+*.pyc
+
+# Ignore IDE or OS files
+.vscode/
+.idea/
+.DS_Store
+
+# Ignore credentials (if any)
+*.pem
+*.key
+*.crt
+*.zip
+
+# Logs
+*.log
