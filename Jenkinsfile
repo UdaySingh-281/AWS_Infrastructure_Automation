@@ -15,23 +15,29 @@ pipeline {
 
         stage('Terraform Init & Apply') {
             steps {
-                dir('terraform') {
-                    echo "🚀 Initializing and applying Terraform..."
-                    sh '''
-                    terraform init -input=false
-                    terraform apply -auto-approve -input=false
-                    terraform output -json > ../outputs.json
-                    '''
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                    dir('terraform') {
+                        echo "🚀 Initializing and applying Terraform..."
+                        sh '''
+                        terraform --version || sudo apt-get install -y terraform
+                        terraform init -input=false
+                        terraform apply -auto-approve -input=false
+                        terraform output -json > ../outputs.json
+                        '''
+                    }
                 }
             }
         }
 
         stage('Update Bastion Security Group') {
             steps {
-                echo "🔒 Updating Bastion SG to allow Jenkins IP..."
-                sh '''
-                python3 scripts/update_bastion_sg.py
-                '''
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                    echo "🔒 Updating Bastion SG to allow Jenkins IP..."
+                    sh '''
+                    aws sts get-caller-identity
+                    python3 scripts/update_bastion_sg.py
+                    '''
+                }
             }
         }
 
@@ -46,10 +52,13 @@ pipeline {
 
         stage('Run Ansible Playbook') {
             steps {
-                echo "⚙️ Running Ansible to configure servers..."
-                sh '''
-                ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --ssh-common-args='-F ansible/ssh_config'
-                '''
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                    echo "⚙️ Running Ansible to configure servers..."
+                    sh '''
+                    ansible --version || sudo apt-get install -y ansible
+                    ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --ssh-common-args='-F ansible/ssh_config'
+                    '''
+                }
             }
         }
 
