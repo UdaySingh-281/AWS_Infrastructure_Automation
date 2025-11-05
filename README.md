@@ -60,34 +60,34 @@ The goal of this project is to automate end-to-end deployment of a secure, scala
 ## 📂 Project Structure
 
 AWS_Infrastructure_Automation/
-│
-├── ansible/
-│   ├── inventories/
-│   │   └── hosts.ini
-│   ├── playbooks/
-│   │   └── site.yaml
-│   ├── roles/
-│   │   ├── common/
-│   │   ├── web/
-│   │   └── db/
-│   ├── ansible.cfg
-│   └── scripts/
-│       ├── generate_ssh_config.py
-│       └── update_bastion_sg.py
-│
-├── terraform/
-│   ├── envs/dev/
-│   │   ├── main.tf
-│   │   ├── outputs.tf
-│   │   ├── variables.tf
-│   │   └── terraform.tfvars
-│   ├── modules/
-│   │   ├── vpc/
-│   │   └── ec2/
-│   └── provider.tf
-│
-├── Jenkinsfile
-└── .gitignore
+    │
+    ├── ansible/
+    │   ├── inventories/
+    │   │   └── hosts.ini
+    │   ├── playbooks/
+    │   │   └── site.yaml
+    │   ├── roles/
+    │   │   ├── common/
+    │   │   ├── web/
+    │   │   └── db/
+    │   ├── ansible.cfg
+    │   └── scripts/
+    │       ├── generate_ssh_config.py
+    │       └── update_bastion_sg.py
+    │
+    ├── terraform/
+    │   ├── envs/dev/
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   ├── variables.tf
+    │   │   └── terraform.tfvars
+    │   ├── modules/
+    │   │   ├── vpc/
+    │   │   └── ec2/
+    │   └── provider.tf
+    │
+    ├── Jenkinsfile
+    └── .gitignore
 
 
 ---
