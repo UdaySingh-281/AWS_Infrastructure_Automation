@@ -21,14 +21,14 @@ pipeline {
                         sh '''
                         terraform --version || sudo apt-get install -y terraform
                         terraform init -input=false
-                        terraform apply -auto-approve -input=false
+                        stdbuf -oL terraform apply -auto-approve -input=false
                         terraform output -json > ../outputs.json
                         '''
                     }
                 }
             }
         }
-
+        
         stage('Update Bastion Security Group') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
