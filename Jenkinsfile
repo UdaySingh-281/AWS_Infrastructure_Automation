@@ -9,7 +9,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 echo "📦 Checking out code..."
-                git branch: 'main', url: 'https://github.com/your-repo/infrastructure.git'
+                git branch: 'master', url: 'https://github.com/UdaySingh-281/AWS_Infrastructure_Automation.git'
             }
         }
 
