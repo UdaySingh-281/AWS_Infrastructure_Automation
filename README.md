@@ -59,7 +59,8 @@ The goal of this project is to automate end-to-end deployment of a secure, scala
 
 ## 📂 Project Structure
 
-```AWS_Infrastructure_Automation/
+```
+AWS_Infrastructure_Automation/
     │
     ├── ansible/
     │   ├── inventories/
