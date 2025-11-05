@@ -15,5 +15,5 @@ output "db_node_private_ips" {
 
 output "bastion_sg_id" {
   description = "Security Group ID of the Bastion Host"
-  value       = aws_security_group.bastion_sg.id
+  value       = aws_security_group.bastion_host_sg.id
 }
