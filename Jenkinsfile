@@ -16,7 +16,7 @@ pipeline {
         stage('Terraform Init & Apply') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    dir('terraform') {
+                    dir('terraform/envs/dev') {
                         echo "🚀 Initializing and applying Terraform..."
 
                         // Run terraform plan first for visibility
