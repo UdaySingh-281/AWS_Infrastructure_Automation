@@ -66,6 +66,7 @@ pipeline {
 
                 dir('ansible') {
                     sh '''
+                    export ANSIBLE_HOST_KEY_CHECKING=False
                     ansible all -i inventories/hosts.ini -m ping
                     ansible-playbook -i inventories/hosts.ini playbooks/site.yaml
                     '''
