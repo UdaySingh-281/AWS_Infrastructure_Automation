@@ -22,7 +22,7 @@ pipeline {
                         // Run terraform plan first for visibility
                         sh '''
                         # Ensure Terraform is installed
-                        terraform --version || sudo apt-get update && sudo apt-get install -y terraform
+                        terraform --version
 
                         # Initialize Terraform
                         terraform init -input=false
