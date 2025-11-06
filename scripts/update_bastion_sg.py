@@ -6,7 +6,7 @@ region = "us-east-1"  # Update only if your region changes
 
 def update_bastion_sg():
     # Load Terraform outputs
-    with open('terraform/outputs.json') as f:
+    with open('terraform/envs/dev/outputs.json') as f:
         data = json.load(f)
 
     # Read bastion SG ID dynamically
