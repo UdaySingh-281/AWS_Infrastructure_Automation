@@ -6,43 +6,43 @@ pipeline {
     }
 
     stages {
-        // stage('Checkout Code') {
-        //     steps {
-        //         echo "📦 Checking out code..."
-        //         git branch: 'master', url: 'https://github.com/UdaySingh-281/AWS_Infrastructure_Automation.git'
-        //     }
-        // }
+        stage('Checkout Code') {
+            steps {
+                echo "📦 Checking out code..."
+                git branch: 'master', url: 'https://github.com/UdaySingh-281/AWS_Infrastructure_Automation.git'
+            }
+        }
 
-        // stage('Terraform Init & Apply') {
-        //     steps {
-        //         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-        //             dir('terraform/envs/dev') {
-        //                 echo "🚀 Initializing and applying Terraform..."
+        stage('Terraform Init & Apply') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                    dir('terraform/envs/dev') {
+                        echo "🚀 Initializing and applying Terraform..."
 
-        //                 sh '''
-        //                 terraform --version
-        //                 terraform init -input=false
-        //                 terraform plan -out=tfplan -input=false
-        //                 terraform apply -auto-approve tfplan
-        //                 terraform output -json > ../outputs.json
-        //                 '''
-        //             }
-        //         }
-        //     }
-        // }
+                        sh '''
+                        terraform --version
+                        terraform init -input=false
+                        terraform plan -out=tfplan -input=false
+                        terraform apply -auto-approve tfplan
+                        terraform output -json > ../outputs.json
+                        '''
+                    }
+                }
+            }
+        }
 
-        // stage('Update Bastion Security Group') {
-        //     steps {
-        //         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-        //             echo "🔒 Updating Bastion SG to allow Jenkins IP..."
-        //             sh '''
-        //             pip3 install --no-cache-dir -r scripts/requirements.txt
-        //             aws sts get-caller-identity
-        //             python3 scripts/update_bastion_sg.py
-        //             '''
-        //         }
-        //     }
-        // }
+        stage('Update Bastion Security Group') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                    echo "🔒 Updating Bastion SG to allow Jenkins IP..."
+                    sh '''
+                    pip3 install --no-cache-dir -r scripts/requirements.txt
+                    aws sts get-caller-identity
+                    python3 scripts/update_bastion_sg.py
+                    '''
+                }
+            }
+        }
 
         stage('Generate SSH Config') {
             steps {
