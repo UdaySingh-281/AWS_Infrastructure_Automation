@@ -46,8 +46,8 @@ pipeline {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
                     echo "🔒 Updating Bastion SG to allow Jenkins IP..."
                     sh '''
+                    pip3 install --no-cache-dir -r scripts/requirements.txt
                     aws sts get-caller-identity
-                    pip3 install -r scripts/requirements.txt
                     python3 scripts/update_bastion_sg.py
                     '''
                 }
