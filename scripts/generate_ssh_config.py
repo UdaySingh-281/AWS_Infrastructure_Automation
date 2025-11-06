@@ -5,41 +5,36 @@ import os
 with open('terraform/envs/outputs.json') as f:
     data = json.load(f)
 
-# Use the actual keys from your outputs.tf
 bastion_ip = data['bastion_public_ip']['value']
-web_private_ips = data['web_node_private_ips']['value']
-db_private_ips = data['db_node_private_ips']['value']
+web_ip = data['web_node_private_ips']['value'][0]  # Assuming one web node
+db_ip = data['db_node_private_ips']['value'][0]    # Assuming one db node
 
-# Path to SSH config file
 config_path = os.path.expanduser('~/.ssh/config')
+key_path = os.path.expanduser('~/.ssh/SlaveNode.pem')
 
-# Create ~/.ssh if it doesn’t exist
 os.makedirs(os.path.dirname(config_path), exist_ok=True)
 
-# Write SSH config dynamically
 with open(config_path, 'w') as f:
     f.write(f"""Host bastion
     HostName {bastion_ip}
     User ubuntu
-    IdentityFile ~/ansible/keys/SlaveNode.pem
+    IdentityFile {key_path}
 """)
 
-    for i, ip in enumerate(web_private_ips, 1):
-        f.write(f"""
-Host web{i}
-    HostName {ip}
+    f.write(f"""
+Host web
+    HostName {web_ip}
     User ubuntu
     ProxyJump bastion
-    IdentityFile ~/ansible/keys/SlaveNode.pem
+    IdentityFile {key_path}
 """)
 
-    for i, ip in enumerate(db_private_ips, 1):
-        f.write(f"""
-Host db{i}
-    HostName {ip}
+    f.write(f"""
+Host db
+    HostName {db_ip}
     User ubuntu
     ProxyJump bastion
-    IdentityFile ~/ansible/keys/SlaveNode.pem
+    IdentityFile {key_path}
 """)
 
 print("✅ SSH config file updated successfully!")

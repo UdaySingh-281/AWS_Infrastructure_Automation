@@ -19,28 +19,18 @@ pipeline {
                     dir('terraform/envs/dev') {
                         echo "🚀 Initializing and applying Terraform..."
 
-                        // Run terraform plan first for visibility
                         sh '''
-                        # Ensure Terraform is installed
                         terraform --version
-
-                        # Initialize Terraform
                         terraform init -input=false
-
-                        # Show planned changes
                         terraform plan -out=tfplan -input=false
-
-                        # Apply the plan
                         terraform apply -auto-approve tfplan
-
-                        # Export outputs to JSON
                         terraform output -json > ../outputs.json
                         '''
                     }
                 }
             }
         }
-        
+
         stage('Update Bastion Security Group') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
@@ -56,31 +46,30 @@ pipeline {
 
         stage('Generate SSH Config') {
             steps {
-                echo "🧩 Generating SSH config file dynamically..."
-                sh '''
-                python3 scripts/generate_ssh_config.py
-                '''
+                withCredentials([file(credentialsId: 'ssh-key', variable: 'SSH_KEY_PATH')]) {
+                    echo "🧩 Generating SSH config file dynamically..."
+
+                    sh '''
+                    mkdir -p ~/.ssh
+                    cp $SSH_KEY_PATH ~/.ssh/SlaveNode.pem
+                    chmod 600 ~/.ssh/SlaveNode.pem
+
+                    python3 scripts/generate_ssh_config.py
+                    '''
+                }
             }
         }
 
         stage('Run Ansible Playbook') {
             steps {
-                withCredentials([file(credentialsId: 'ssh-key', variable: 'SSH_KEY_PATH')]) {
-                    echo "⚙️ Running Ansible to configure servers..."
+                echo "⚙️ Running Ansible to configure servers..."
 
-                    dir('.') {
-                        sh '''
-                        ansible --version || apt-get update && apt-get install -y ansible
+                dir('.') {
+                    sh '''
+                    ansible --version || apt-get update && apt-get install -y ansible
 
-                        mkdir -p ~/.ssh
-                        cp $SSH_KEY_PATH ~/.ssh/SlaveNode.pem
-                        chmod 600 ~/.ssh/SlaveNode.pem
-
-                        python3 scripts/generate_ssh_config.py
-
-                        ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/site.yml
-                        '''
-                    }
+                    ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/site.yml
+                    '''
                 }
             }
         }
@@ -89,8 +78,8 @@ pipeline {
             steps {
                 echo "🔍 Verifying Nginx and MySQL setup..."
                 sh '''
-                ansible web -i ansible/inventory.ini -m shell -a "systemctl status nginx"
-                ansible db -i ansible/inventory.ini -m shell -a "systemctl status mysql"
+                ansible web -i ansible/inventories/hosts.ini -m shell -a "systemctl status nginx"
+                ansible db -i ansible/inventories/hosts.ini -m shell -a "systemctl status mysql"
                 '''
             }
         }
