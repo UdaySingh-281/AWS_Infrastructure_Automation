@@ -66,8 +66,6 @@ pipeline {
 
                 dir('.') {
                     sh '''
-                    ansible --version || apt-get update && apt-get install -y ansible
-
                     ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/site.yml
                     '''
                 }
