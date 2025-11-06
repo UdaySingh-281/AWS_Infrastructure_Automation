@@ -64,7 +64,7 @@ pipeline {
             steps {
                 echo "⚙️ Running Ansible to configure servers..."
 
-                dir('.') {
+                dir('ansible') {
                     sh '''
                     ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/site.yaml
                     '''
