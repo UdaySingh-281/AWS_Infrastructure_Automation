@@ -2,7 +2,7 @@ import json
 import os
 
 # Load Terraform outputs
-with open('terraform/outputs.json') as f:
+with open('terraform/envs/outputs.json') as f:
     data = json.load(f)
 
 # Use the actual keys from your outputs.tf
