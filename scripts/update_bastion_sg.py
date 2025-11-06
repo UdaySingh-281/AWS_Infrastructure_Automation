@@ -39,7 +39,7 @@ def update_bastion_sg():
         CidrIp=my_ip
     )
 
-    print(f"✅ Bastion SG ({sg_id}) updated to allow SSH from {my_ip}")
+    print(f"Bastion SG ({sg_id}) updated to allow SSH from {my_ip}")
 
 
 if __name__ == "__main__":

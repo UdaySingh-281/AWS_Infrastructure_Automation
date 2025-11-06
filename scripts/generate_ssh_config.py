@@ -37,4 +37,4 @@ Host db
     IdentityFile {key_path}
 """)
 
-print("✅ SSH config file updated successfully!")
+print("SSH config file updated successfully!")
