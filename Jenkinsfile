@@ -66,7 +66,7 @@ pipeline {
 
                 dir('.') {
                     sh '''
-                    ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/site.yml
+                    ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/site.yaml
                     '''
                 }
             }
