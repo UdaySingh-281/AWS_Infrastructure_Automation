@@ -44,21 +44,21 @@ pipeline {
         //     }
         // }
 
-        // stage('Generate SSH Config') {
-        //     steps {
-        //         withCredentials([file(credentialsId: 'ssh-key', variable: 'SSH_KEY_PATH')]) {
-        //             echo "🧩 Generating SSH config file dynamically..."
+        stage('Generate SSH Config') {
+            steps {
+                withCredentials([file(credentialsId: 'ssh-key', variable: 'SSH_KEY_PATH')]) {
+                    echo "🧩 Generating SSH config file dynamically..."
 
-        //             sh '''
-        //             mkdir -p ~/.ssh
-        //             cp $SSH_KEY_PATH ~/.ssh/SlaveNode.pem
-        //             chmod 600 ~/.ssh/SlaveNode.pem
+                    sh '''
+                    mkdir -p ~/.ssh
+                    cp $SSH_KEY_PATH ~/.ssh/SlaveNode.pem
+                    chmod 600 ~/.ssh/SlaveNode.pem
 
-        //             python3 scripts/generate_ssh_config.py
-        //             '''
-        //         }
-        //     }
-        // }
+                    python3 scripts/generate_ssh_config.py
+                    '''
+                }
+            }
+        }
 
         stage('Run Ansible Playbook') {
             steps {
