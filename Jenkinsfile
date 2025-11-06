@@ -66,6 +66,7 @@ pipeline {
 
                 dir('ansible') {
                     sh '''
+                    ansible all -i ansible/inventories/hosts.ini -m ping
                     ansible-playbook -i inventories/hosts.ini playbooks/site.yaml
                     '''
                 }
