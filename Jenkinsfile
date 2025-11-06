@@ -47,6 +47,7 @@ pipeline {
                     echo "🔒 Updating Bastion SG to allow Jenkins IP..."
                     sh '''
                     aws sts get-caller-identity
+                    pip install -r scripts/requirements.txt
                     python3 scripts/update_bastion_sg.py
                     '''
                 }
