@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                echo "📦 Checking out code..."
+                echo "Checking out code..."
                 git branch: 'master', url: 'https://github.com/UdaySingh-281/AWS_Infrastructure_Automation.git'
             }
         }
@@ -17,7 +17,7 @@ pipeline {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
                     dir('terraform/envs/dev') {
-                        echo "🚀 Initializing and applying Terraform..."
+                        echo "Initializing and applying Terraform..."
 
                         sh '''
                         terraform --version
@@ -34,7 +34,7 @@ pipeline {
         stage('Update Bastion Security Group') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    echo "🔒 Updating Bastion SG to allow Jenkins IP..."
+                    echo "Updating Bastion SG to allow Jenkins IP..."
                     sh '''
                     pip3 install --no-cache-dir -r scripts/requirements.txt
                     aws sts get-caller-identity
@@ -47,7 +47,7 @@ pipeline {
         stage('Generate SSH Config') {
             steps {
                 withCredentials([file(credentialsId: 'ssh-key', variable: 'SSH_KEY_PATH')]) {
-                    echo "🧩 Generating SSH config file dynamically..."
+                    echo "Generating SSH config file dynamically..."
 
                     sh '''
                     mkdir -p ~/.ssh
@@ -62,7 +62,7 @@ pipeline {
 
         stage('Run Ansible Playbook') {
             steps {
-                echo "⚙️ Running Ansible to configure servers..."
+                echo "Running Ansible to configure servers..."
 
                 dir('ansible') {
                     sh '''
@@ -87,10 +87,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Infrastructure deployed and configured successfully!"
+            echo "Infrastructure deployed and configured successfully!"
         }
         failure {
-            echo "❌ Pipeline failed — check Jenkins logs for details."
+            echo "Pipeline failed — check Jenkins logs for details."
         }
     }
 }
