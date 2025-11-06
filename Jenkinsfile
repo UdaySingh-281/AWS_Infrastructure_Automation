@@ -6,59 +6,59 @@ pipeline {
     }
 
     stages {
-        stage('Checkout Code') {
-            steps {
-                echo "📦 Checking out code..."
-                git branch: 'master', url: 'https://github.com/UdaySingh-281/AWS_Infrastructure_Automation.git'
-            }
-        }
+        // stage('Checkout Code') {
+        //     steps {
+        //         echo "📦 Checking out code..."
+        //         git branch: 'master', url: 'https://github.com/UdaySingh-281/AWS_Infrastructure_Automation.git'
+        //     }
+        // }
 
-        stage('Terraform Init & Apply') {
-            steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    dir('terraform/envs/dev') {
-                        echo "🚀 Initializing and applying Terraform..."
+        // stage('Terraform Init & Apply') {
+        //     steps {
+        //         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+        //             dir('terraform/envs/dev') {
+        //                 echo "🚀 Initializing and applying Terraform..."
 
-                        sh '''
-                        terraform --version
-                        terraform init -input=false
-                        terraform plan -out=tfplan -input=false
-                        terraform apply -auto-approve tfplan
-                        terraform output -json > ../outputs.json
-                        '''
-                    }
-                }
-            }
-        }
+        //                 sh '''
+        //                 terraform --version
+        //                 terraform init -input=false
+        //                 terraform plan -out=tfplan -input=false
+        //                 terraform apply -auto-approve tfplan
+        //                 terraform output -json > ../outputs.json
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
 
-        stage('Update Bastion Security Group') {
-            steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    echo "🔒 Updating Bastion SG to allow Jenkins IP..."
-                    sh '''
-                    pip3 install --no-cache-dir -r scripts/requirements.txt
-                    aws sts get-caller-identity
-                    python3 scripts/update_bastion_sg.py
-                    '''
-                }
-            }
-        }
+        // stage('Update Bastion Security Group') {
+        //     steps {
+        //         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+        //             echo "🔒 Updating Bastion SG to allow Jenkins IP..."
+        //             sh '''
+        //             pip3 install --no-cache-dir -r scripts/requirements.txt
+        //             aws sts get-caller-identity
+        //             python3 scripts/update_bastion_sg.py
+        //             '''
+        //         }
+        //     }
+        // }
 
-        stage('Generate SSH Config') {
-            steps {
-                withCredentials([file(credentialsId: 'ssh-key', variable: 'SSH_KEY_PATH')]) {
-                    echo "🧩 Generating SSH config file dynamically..."
+        // stage('Generate SSH Config') {
+        //     steps {
+        //         withCredentials([file(credentialsId: 'ssh-key', variable: 'SSH_KEY_PATH')]) {
+        //             echo "🧩 Generating SSH config file dynamically..."
 
-                    sh '''
-                    mkdir -p ~/.ssh
-                    cp $SSH_KEY_PATH ~/.ssh/SlaveNode.pem
-                    chmod 600 ~/.ssh/SlaveNode.pem
+        //             sh '''
+        //             mkdir -p ~/.ssh
+        //             cp $SSH_KEY_PATH ~/.ssh/SlaveNode.pem
+        //             chmod 600 ~/.ssh/SlaveNode.pem
 
-                    python3 scripts/generate_ssh_config.py
-                    '''
-                }
-            }
-        }
+        //             python3 scripts/generate_ssh_config.py
+        //             '''
+        //         }
+        //     }
+        // }
 
         stage('Run Ansible Playbook') {
             steps {
@@ -66,7 +66,7 @@ pipeline {
 
                 dir('ansible') {
                     sh '''
-                    ansible all -i ansible/inventories/hosts.ini -m ping
+                    ansible all -i inventories/hosts.ini -m ping
                     ansible-playbook -i inventories/hosts.ini playbooks/site.yaml
                     '''
                 }
