@@ -65,14 +65,21 @@ pipeline {
 
         stage('Run Ansible Playbook') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                withCredentials([file(credentialsId: 'ssh-key', variable: 'SSH_KEY_PATH')]) {
                     echo "⚙️ Running Ansible to configure servers..."
 
-                    dir('.'){
+                    dir('.') {
                         sh '''
-                    ansible --version
-                    ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --ssh-common-args='-F ansible/ssh_config'
-                    '''
+                        ansible --version || apt-get update && apt-get install -y ansible
+
+                        mkdir -p ~/.ssh
+                        cp $SSH_KEY_PATH ~/.ssh/SlaveNode.pem
+                        chmod 600 ~/.ssh/SlaveNode.pem
+
+                        python3 scripts/generate_ssh_config.py
+
+                        ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/site.yml
+                        '''
                     }
                 }
             }
