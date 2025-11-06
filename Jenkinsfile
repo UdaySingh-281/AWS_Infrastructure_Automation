@@ -67,10 +67,13 @@ pipeline {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
                     echo "⚙️ Running Ansible to configure servers..."
-                    sh '''
-                    ansible --version || sudo apt-get install -y ansible
+
+                    dir('.'){
+                        sh '''
+                    ansible --version
                     ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --ssh-common-args='-F ansible/ssh_config'
                     '''
+                    }
                 }
             }
         }
