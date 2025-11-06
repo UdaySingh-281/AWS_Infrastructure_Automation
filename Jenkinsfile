@@ -18,10 +18,22 @@ pipeline {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
                     dir('terraform') {
                         echo "🚀 Initializing and applying Terraform..."
+
+                        // Run terraform plan first for visibility
                         sh '''
-                        terraform --version || sudo apt-get install -y terraform
+                        # Ensure Terraform is installed
+                        terraform --version || sudo apt-get update && sudo apt-get install -y terraform
+
+                        # Initialize Terraform
                         terraform init -input=false
-                        stdbuf -oL terraform apply -auto-approve -input=false
+
+                        # Show planned changes
+                        terraform plan -out=tfplan -input=false
+
+                        # Apply the plan
+                        terraform apply -auto-approve tfplan
+
+                        # Export outputs to JSON
                         terraform output -json > ../outputs.json
                         '''
                     }
