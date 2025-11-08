@@ -57,8 +57,8 @@ pipeline {
                     # Always overwrite old SSH config
                     rm -f ~/.ssh/config
                     python3 scripts/generate_ssh_config.py
-                    sudo chown -R jenkins:jenkins /var/lib/jenkins/.ssh
-                    sudo chmod 600 /var/lib/jenkins/.ssh/config
+                    chown -R jenkins:jenkins /var/lib/jenkins/.ssh
+                    chmod 600 /var/lib/jenkins/.ssh/config
 
                     '''
                 }
