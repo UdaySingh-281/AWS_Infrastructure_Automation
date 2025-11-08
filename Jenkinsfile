@@ -54,7 +54,12 @@ pipeline {
                     cp $SSH_KEY_PATH ~/.ssh/SlaveNode.pem
                     chmod 600 ~/.ssh/SlaveNode.pem
 
+                    # Always overwrite old SSH config
+                    rm -f ~/.ssh/config
                     python3 scripts/generate_ssh_config.py
+                    sudo chown -R jenkins:jenkins /var/lib/jenkins/.ssh
+                    sudo chmod 600 /var/lib/jenkins/.ssh/config
+
                     '''
                 }
             }
