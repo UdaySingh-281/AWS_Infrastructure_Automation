@@ -13,23 +13,23 @@ pipeline {
             }
         }
 
-        // stage('Terraform Init & Apply') {
-        //     steps {
-        //         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-        //             dir('terraform/envs/dev') {
-        //                 echo "Initializing and applying Terraform..."
+        stage('Terraform Init & Apply') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                    dir('terraform/envs/dev') {
+                        echo "Initializing and applying Terraform..."
 
-        //                 sh '''
-        //                 terraform --version
-        //                 terraform init -input=false
-        //                 terraform plan -out=tfplan -input=false
-        //                 terraform apply -auto-approve tfplan
-        //                 terraform output -json > ../outputs.json
-        //                 '''
-        //             }
-        //         }
-        //     }
-        // }
+                        sh '''
+                        terraform --version
+                        terraform init -input=false
+                        terraform plan -out=tfplan -input=false
+                        terraform apply -auto-approve tfplan
+                        terraform output -json > ../outputs.json
+                        '''
+                    }
+                }
+            }
+        }
 
         stage('Update Bastion Security Group') {
             steps {
