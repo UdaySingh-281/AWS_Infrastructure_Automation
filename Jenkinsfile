@@ -67,43 +67,47 @@ pipeline {
 
         stage('Run Ansible Playbook') {
             steps {
-                echo "Running Ansible to configure servers dynamically..."
+                echo "Running Ansible to configure servers..."
 
                 dir('ansible') {
                     sh '''
-                    # Clean up old SSH fingerprints
+                    # Clean up known hosts
                     rm -f /var/lib/jenkins/.ssh/known_hosts
                     touch /var/lib/jenkins/.ssh/known_hosts
                     chmod 600 /var/lib/jenkins/.ssh/known_hosts
 
-                    # Ensure correct permissions for Jenkins SSH folder
+                    # Permissions fix
                     mkdir -p /var/lib/jenkins/.ssh
                     chmod 700 /var/lib/jenkins/.ssh
                     chown -R jenkins:jenkins /var/lib/jenkins/.ssh
 
-                    # Disable host key checking (non-interactive CI run)
                     export ANSIBLE_HOST_KEY_CHECKING=False
 
-                    # Fetch Bastion public IP dynamically from Terraform output
-                    cd ../terraform
-                    BASTION_IP=$(terraform output -raw bastion_public_ip)
+                    # ✅ Fetch Bastion IP from correct Terraform environment directory
+                    cd ../terraform/envs/dev
+                    terraform init -input=false > /dev/null 2>&1
+                    BASTION_IP=$(terraform output -raw bastion_public_ip || echo "")
+                    cd ../../../ansible
+
+                    if [ -z "$BASTION_IP" ]; then
+                    echo "❌ ERROR: Bastion IP not found in Terraform outputs."
+                    exit 1
+                    fi
+
                     echo "🔑 Detected Bastion IP: $BASTION_IP"
 
-                    # Add Bastion host key dynamically to known_hosts
-                    cd ../ansible
+                    # Add bastion to known_hosts (avoid manual yes prompt)
                     ssh-keyscan -H $BASTION_IP >> /var/lib/jenkins/.ssh/known_hosts
+                    echo "✅ Updated known_hosts with bastion IP."
 
-                    # Verify known_hosts updated
-                    echo "✅ Known hosts updated:"
-                    cat /var/lib/jenkins/.ssh/known_hosts
-
-                    # Run Ansible ping test and main playbook using SSH config
+                    # Verify Ansible connectivity and run playbook
                     ansible all -i inventories/hosts.ini -m ping --ssh-common-args='-F /var/lib/jenkins/.ssh/config'
                     ansible-playbook -i inventories/hosts.ini playbooks/site.yaml --ssh-common-args='-F /var/lib/jenkins/.ssh/config'
                     '''
                 }
             }
         }
+
 
 
         stage('Verify Deployment') {
