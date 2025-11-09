@@ -13,23 +13,23 @@ pipeline {
             }
         }
 
-        stage('Terraform Init & Apply') {
-            steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    dir('terraform/envs/dev') {
-                        echo "Initializing and applying Terraform..."
+        // stage('Terraform Init & Apply') {
+        //     steps {
+        //         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+        //             dir('terraform/envs/dev') {
+        //                 echo "Initializing and applying Terraform..."
 
-                        sh '''
-                        terraform --version
-                        terraform init -input=false
-                        terraform plan -out=tfplan -input=false
-                        terraform apply -auto-approve tfplan
-                        terraform output -json > ../outputs.json
-                        '''
-                    }
-                }
-            }
-        }
+        //                 sh '''
+        //                 terraform --version
+        //                 terraform init -input=false
+        //                 terraform plan -out=tfplan -input=false
+        //                 terraform apply -auto-approve tfplan
+        //                 terraform output -json > ../outputs.json
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Update Bastion Security Group') {
             steps {
@@ -69,44 +69,45 @@ pipeline {
             steps {
                 echo "Running Ansible to configure servers..."
 
-                dir('ansible') {
-                    sh '''
-                    # Clean up known hosts
-                    rm -f /var/lib/jenkins/.ssh/known_hosts
-                    touch /var/lib/jenkins/.ssh/known_hosts
-                    chmod 600 /var/lib/jenkins/.ssh/known_hosts
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                    dir('ansible') {
+                        sh '''
+                        # Clean up known hosts
+                        rm -f /var/lib/jenkins/.ssh/known_hosts
+                        touch /var/lib/jenkins/.ssh/known_hosts
+                        chmod 600 /var/lib/jenkins/.ssh/known_hosts
 
-                    # Permissions fix
-                    mkdir -p /var/lib/jenkins/.ssh
-                    chmod 700 /var/lib/jenkins/.ssh
-                    chown -R jenkins:jenkins /var/lib/jenkins/.ssh
+                        mkdir -p /var/lib/jenkins/.ssh
+                        chmod 700 /var/lib/jenkins/.ssh
+                        chown -R jenkins:jenkins /var/lib/jenkins/.ssh
 
-                    export ANSIBLE_HOST_KEY_CHECKING=False
+                        export ANSIBLE_HOST_KEY_CHECKING=False
 
-                    # ✅ Fetch Bastion IP from correct Terraform environment directory
-                    cd ../terraform/envs/dev
-                    terraform init -input=false > /dev/null 2>&1
-                    BASTION_IP=$(terraform output -raw bastion_public_ip || echo "")
-                    cd ../../../ansible
+                        # ✅ Initialize Terraform in correct directory
+                        cd ../terraform/envs/dev
+                        terraform init -input=false > /dev/null 2>&1
+                        BASTION_IP=$(terraform output -raw bastion_public_ip || echo "")
+                        cd ../../../ansible
 
-                    if [ -z "$BASTION_IP" ]; then
-                    echo "❌ ERROR: Bastion IP not found in Terraform outputs."
-                    exit 1
-                    fi
+                        if [ -z "$BASTION_IP" ]; then
+                        echo "❌ ERROR: Bastion IP not found in Terraform outputs."
+                        exit 1
+                        fi
 
-                    echo "🔑 Detected Bastion IP: $BASTION_IP"
+                        echo "🔑 Detected Bastion IP: $BASTION_IP"
 
-                    # Add bastion to known_hosts (avoid manual yes prompt)
-                    ssh-keyscan -H $BASTION_IP >> /var/lib/jenkins/.ssh/known_hosts
-                    echo "✅ Updated known_hosts with bastion IP."
+                        # Add bastion to known_hosts to avoid prompt
+                        ssh-keyscan -H $BASTION_IP >> /var/lib/jenkins/.ssh/known_hosts
+                        echo "✅ Updated known_hosts with bastion IP."
 
-                    # Verify Ansible connectivity and run playbook
-                    ansible all -i inventories/hosts.ini -m ping --ssh-common-args='-F /var/lib/jenkins/.ssh/config'
-                    ansible-playbook -i inventories/hosts.ini playbooks/site.yaml --ssh-common-args='-F /var/lib/jenkins/.ssh/config'
-                    '''
+                        ansible all -i inventories/hosts.ini -m ping --ssh-common-args='-F /var/lib/jenkins/.ssh/config'
+                        ansible-playbook -i inventories/hosts.ini playbooks/site.yaml --ssh-common-args='-F /var/lib/jenkins/.ssh/config'
+                        '''
+                    }
                 }
             }
         }
+
 
 
 
