@@ -83,22 +83,21 @@ pipeline {
 
                         export ANSIBLE_HOST_KEY_CHECKING=False
 
-                        # ✅ Initialize Terraform in correct directory
                         cd ../terraform/envs/dev
                         terraform init -input=false > /dev/null 2>&1
                         BASTION_IP=$(terraform output -raw bastion_public_ip || echo "")
                         cd ../../../ansible
 
                         if [ -z "$BASTION_IP" ]; then
-                        echo "❌ ERROR: Bastion IP not found in Terraform outputs."
+                        echo "ERROR: Bastion IP not found in Terraform outputs."
                         exit 1
                         fi
 
-                        echo "🔑 Detected Bastion IP: $BASTION_IP"
+                        echo "Detected Bastion IP: $BASTION_IP"
 
                         # Add bastion to known_hosts to avoid prompt
                         ssh-keyscan -H $BASTION_IP >> /var/lib/jenkins/.ssh/known_hosts
-                        echo "✅ Updated known_hosts with bastion IP."
+                        echo "Updated known_hosts with bastion IP."
 
                         ansible all -i inventories/hosts.ini -m ping --ssh-common-args='-F /var/lib/jenkins/.ssh/config'
                         ansible-playbook -i inventories/hosts.ini playbooks/site.yaml --ssh-common-args='-F /var/lib/jenkins/.ssh/config'
@@ -113,7 +112,7 @@ pipeline {
 
         stage('Verify Deployment') {
             steps {
-                echo "🔍 Verifying Nginx and MySQL setup..."
+                echo "Verifying Nginx and MySQL setup..."
                 sh '''
                 ansible web -i ansible/inventories/hosts.ini -m shell -a "systemctl status nginx"
                 ansible db -i ansible/inventories/hosts.ini -m shell -a "systemctl status mysql"
