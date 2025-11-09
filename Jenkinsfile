@@ -71,6 +71,11 @@ pipeline {
 
                 dir('ansible') {
                     sh '''
+                    #Clean up old SSH fingerprints before Ansible runs
+                    rm -f /var/lib/jenkins/.ssh/known_hosts
+                    touch /var/lib/jenkins/.ssh/known_hosts
+                    chmod 600 /var/lib/jenkins/.ssh/known_hosts
+
                     export ANSIBLE_HOST_KEY_CHECKING=False
                     ansible all -i inventories/hosts.ini -m ping
                     ansible-playbook -i inventories/hosts.ini playbooks/site.yaml
