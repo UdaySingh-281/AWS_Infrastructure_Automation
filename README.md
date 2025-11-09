@@ -21,6 +21,8 @@ The goal of this project is to automate end-to-end deployment of a secure, scala
 
 ## 🏗️ Architecture Diagram
 
+
+
              ┌─────────────────────┐
              │     Jenkins Master   │
              │ (CI/CD Orchestration)│
@@ -45,6 +47,7 @@ The goal of this project is to automate end-to-end deployment of a secure, scala
 
 ---
 
+
 ## ⚙️ Tech Stack
 
 | Tool | Purpose |
@@ -54,6 +57,8 @@ The goal of this project is to automate end-to-end deployment of a secure, scala
 | **Jenkins** | CI/CD orchestration and automation |
 | **AWS** | Cloud infrastructure platform |
 | **Python** | Helper scripts for automation (SG update, SSH config generation) |
+| **Docker** | Containerized Jenkins setup with Terraform, Ansible & Python pre-installed |
+
 
 ---
 
@@ -88,6 +93,8 @@ AWS_Infrastructure_Automation/
     │   └── provider.tf
     │
     ├── Jenkinsfile
+    ├── docker
+    |  ├── Dockerfile
     └── .gitignore
 ```
 
@@ -105,4 +112,11 @@ AWS_Infrastructure_Automation/
 6. **Destroy Infra (optional)** on pipeline teardown
 
 ---
+
+## Key Learnings
+
+1. Integrated Terraform + Ansible + Jenkins for full automation
+2. Automated SSH access via Bastion Host
+3. Used Python scripts for dynamic networking updates
+4. Containerized Jenkins for easy setup and consistent environments
 
