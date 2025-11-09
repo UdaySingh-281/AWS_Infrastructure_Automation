@@ -67,22 +67,44 @@ pipeline {
 
         stage('Run Ansible Playbook') {
             steps {
-                echo "Running Ansible to configure servers..."
+                echo "Running Ansible to configure servers dynamically..."
 
                 dir('ansible') {
                     sh '''
-                    #Clean up old SSH fingerprints before Ansible runs
+                    # Clean up old SSH fingerprints
                     rm -f /var/lib/jenkins/.ssh/known_hosts
                     touch /var/lib/jenkins/.ssh/known_hosts
                     chmod 600 /var/lib/jenkins/.ssh/known_hosts
 
+                    # Ensure correct permissions for Jenkins SSH folder
+                    mkdir -p /var/lib/jenkins/.ssh
+                    chmod 700 /var/lib/jenkins/.ssh
+                    chown -R jenkins:jenkins /var/lib/jenkins/.ssh
+
+                    # Disable host key checking (non-interactive CI run)
                     export ANSIBLE_HOST_KEY_CHECKING=False
-                    ansible all -i inventories/hosts.ini -m ping
-                    ansible-playbook -i inventories/hosts.ini playbooks/site.yaml
+
+                    # Fetch Bastion public IP dynamically from Terraform output
+                    cd ../terraform
+                    BASTION_IP=$(terraform output -raw bastion_public_ip)
+                    echo "🔑 Detected Bastion IP: $BASTION_IP"
+
+                    # Add Bastion host key dynamically to known_hosts
+                    cd ../ansible
+                    ssh-keyscan -H $BASTION_IP >> /var/lib/jenkins/.ssh/known_hosts
+
+                    # Verify known_hosts updated
+                    echo "✅ Known hosts updated:"
+                    cat /var/lib/jenkins/.ssh/known_hosts
+
+                    # Run Ansible ping test and main playbook using SSH config
+                    ansible all -i inventories/hosts.ini -m ping --ssh-common-args='-F /var/lib/jenkins/.ssh/config'
+                    ansible-playbook -i inventories/hosts.ini playbooks/site.yaml --ssh-common-args='-F /var/lib/jenkins/.ssh/config'
                     '''
                 }
             }
         }
+
 
         stage('Verify Deployment') {
             steps {
